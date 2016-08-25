@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: Yq+gnaGnmQlcnZ3Dj1lCpj7e1R9bU0bge13DXrhPtpBpEK0oPhlkf0XuC3SrFN6HaEoQZj13M9wj9/m19BZTnlk9I2SwrXP+VLUz/QSX/UOURRpKT0NiDu8F3GxNs/oHRYHCgGwecLNfRazTWEIOEIKoQ6W42S+zjE2e8iRtoA13DWmfxhPNBPkQWU0hjppH/msCkzG098KmOlem0RTsiitqlj4RgHk8ZSsRD064sHEUhIJZbzOV39MlhjX5IEOlquCaYgbEZOObPtk7LTDdQ+21eWT9czFZhUMTyk4VEJV6pYZfSdNXSa4HnLnklqgNEcMRhusUYi36pGZzJbq+1F6rQjYTBMgLUNuuBMZJa1SbWuhCfxWKkl9xGQbI9jGl8xihXYfTt2loOlhNbEYSftMpf8J6Ui6WTCObWPW/6zyScJL95QhkIRh07AWEkmX4QwHi0zwt8Gg7xmldE0V642V0SxjPSNsruBChMcl1VqTV+6dpOJgdcmIaxSCPNHwtiTesWIRDDKAOVXK5GBExtvW82uC3CY7Ahy+8MEBcOQQ2sXpRZh5bMblCuLDMeXly9kL6gpwWT/HGmYOFq3ch0CVjfH7JMusRlug3xYr0KaQ6w8NY+SjmFAhdrvRbbxEwgVT6H4mzcPKuPhJxaHRBlVT7KGXRWUMcO4Y2U+TdrWg=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/Mr.-Gladstone-and-Genesis--13-Essay--5-from--Science-and-Hebrew-Tradition-_2631
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
